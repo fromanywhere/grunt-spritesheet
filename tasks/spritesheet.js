@@ -45,7 +45,19 @@ module.exports = function(grunt) {
 
 			grunt.log.writeln(destImage, 'created.');
 
-			callback(result.coordinates);
+			var coords = [];
+			var sortedCords;
+
+			for (var key in result.coordinates) {
+				coords.push({
+					key: key,
+					prop: result.coordinates[key]
+				});
+			}
+
+			sortedCords = _.sortBy(coords, 'key' );
+
+			callback(sortedCords);
 		});
 	}
 
@@ -105,11 +117,11 @@ module.exports = function(grunt) {
 
 				mkSprite(std, sprite, options, function(coordinates) {
 
-					Object.getOwnPropertyNames(coordinates).forEach(function(file) {
-						var name = path.basename(file, ext);
+					for (var i = 0; i < coordinates.length; i++) {
+						var name = path.basename(coordinates[i].key, ext);
 						name = prefix + "-" + name;
 
-						file = coordinates[file];
+						var file = coordinates[i].prop;
 
 						coords.std.push({
 							name: name,
@@ -119,7 +131,7 @@ module.exports = function(grunt) {
 							height: file.height,
 							sprite: url
 						});
-					});
+					}
 
 					stdPromise.resolve();
 				});
@@ -147,11 +159,11 @@ module.exports = function(grunt) {
 							grunt.fatal(err);
 						}
 
-						Object.getOwnPropertyNames(coordinates).forEach(function (file) {
-							var name = path.basename(file, '@2x' + ext);
+						for (var i = 0; i < coordinates.length; i++) {
+							var name = path.basename(coordinates[i].key, '@2x' + ext);
 							name = prefix + "-" + name;
 
-							file = coordinates[file];
+							var file = coordinates[i].prop;
 
 							coords.dbl.push({
 								name: name,
@@ -163,7 +175,7 @@ module.exports = function(grunt) {
 								spriteWidth: dimensions.width / 2,
 								spriteHeight: dimensions.height / 2
 							});
-						});
+						}
 
 						dblPromise.resolve();
 					});
