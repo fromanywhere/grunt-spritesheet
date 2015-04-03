@@ -26,8 +26,24 @@ module.exports = function(grunt) {
 	// Create an image from `srcFiles`, with name `destImage`, and pass
 	// coordinates to callback.
 	function mkSprite(srcFiles, destImage, options, callback) {
+		var srcFilesLength = srcFiles.length;
+		var is2x = srcFiles[0].indexOf('@2x') !== -1 ? true : false;
 
-		options.src = srcFiles,
+		if (is2x) {
+			for (var i = 0; i < srcFilesLength; i++) {
+				srcFiles[i] = srcFiles[i].replace('@2x.', '.');
+			}
+		}
+
+		srcFiles.sort();
+
+		if (is2x) {
+			for (var i = 0; i < srcFilesLength; i++) {
+				srcFiles[i] = srcFiles[i].replace('.', '@2x.');
+			}
+		}
+
+		options.src = srcFiles;
 
 		grunt.verbose.writeln('Options passed to Spritesmth:', JSON.stringify(options));
 
@@ -46,7 +62,6 @@ module.exports = function(grunt) {
 			grunt.log.writeln(destImage, 'created.');
 
 			var coords = [];
-			var sortedCords;
 
 			for (var key in result.coordinates) {
 				coords.push({
@@ -55,9 +70,7 @@ module.exports = function(grunt) {
 				});
 			}
 
-			sortedCords = _.sortBy(coords, 'key' );
-
-			callback(sortedCords);
+			callback(coords);
 		});
 	}
 
